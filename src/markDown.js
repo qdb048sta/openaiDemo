@@ -5,6 +5,9 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; //
 
 const MarkdownComponent = ({ markdownContent }) => {
   const messages = [{ role: "users" }];
+  console.log(markdownContent);
+  const sections = markdownContent.message.split("```");
+
   return (
     <div
       style={{
@@ -34,9 +37,22 @@ const MarkdownComponent = ({ markdownContent }) => {
               overflow: "auto",
             }}
           >
-            <SyntaxHighlighter language={"javascript"} style={vscDarkPlus}>
-              {markdownContent.message}
-            </SyntaxHighlighter>
+            {sections.map((section, index) => {
+              if (index % 2 === 0) {
+                // Regular text section
+                return <ReactMarkdown>{section.trim()}</ReactMarkdown>;
+              } else {
+                // Code section
+                return (
+                  <SyntaxHighlighter
+                    language={"javascript"}
+                    style={vscDarkPlus}
+                  >
+                    {section.trim()}
+                  </SyntaxHighlighter>
+                );
+              }
+            })}
           </pre>
         </div>
       ))}

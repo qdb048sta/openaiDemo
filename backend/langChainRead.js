@@ -106,7 +106,7 @@ const conversationalQaChain = RunnableSequence.from([
 export const langChainResponse = async (req, res) => {
   try {
     const { errorComponent, errorCode } = req.body;
-    const question = `I have the following erroe message : ${errorCode}can you help to analyze the problem `;
+    const question = `I have the following error component : ${errorComponent}can you help to do the code review and give me some code example `;
     const result = await conversationalQaChain.invoke({
       question,
     });
