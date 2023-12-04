@@ -1,0 +1,17 @@
+.menu {
+  margin: 5rem 0;
+  table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    width: 100%;
+  }
+  table,
+  th,
+  td {
+    padding: 5px;
+    border: 1px solid white;
+  }
+  button {
+    margin: 1rem;
+  }
+}
