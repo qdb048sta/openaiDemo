@@ -1,0 +1,12 @@
+.total {
+  font-weight: bold;
+}
+
+.input-row {
+  height: 2rem;
+  display: flex;
+  margin: 0.5rem 0;
+  * {
+    text-align: center;
+  }
+}
