@@ -43,12 +43,13 @@ const MarkdownComponent = ({ markdownContent }) => {
                 return <ReactMarkdown>{section.trim()}</ReactMarkdown>;
               } else {
                 // Code section
+                const filteredCode = section.split("\n").slice(1).join("\n");
                 return (
                   <SyntaxHighlighter
                     language={"javascript"}
                     style={vscDarkPlus}
                   >
-                    {section.trim()}
+                    {filteredCode.trim()}
                   </SyntaxHighlighter>
                 );
               }
