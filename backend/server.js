@@ -13,7 +13,6 @@ app.use((req, res, next) => {
 
 app.post("/openai", bodyParser.json(), openaiResponse);
 app.post("/langChain", bodyParser.json(), langChainResponse);
-
 app.post("/test", (req, res) => {
   console.log("connection is correct");
 });
