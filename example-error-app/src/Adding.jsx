@@ -1,8 +1,7 @@
 import { useState } from "react";
-import products from "./products";
 import "./Adding.scss";
 
-const Adding = () => {
+const Adding = ({ products }) => {
   const [total, setTotal] = useState(0);
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(0);
