@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./Menu.scss";
-import defaultProducts from "./products";
+import ProductModal from "./ProductModal";
 
-const Menu = () => {
-  const [products, setProduct] = useState(defaultProducts);
+const Menu = ({ products, setProducts }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="menu">
       <table>
@@ -16,13 +16,25 @@ const Menu = () => {
         <tbody>
           {products.map((data) => (
             <tr>
-              <td>{data.name}: </td>
-              <td>${data.price}</td>
+              <td>{data.name}</td>
+              <td>${data.price.toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button>Add Product</button>
+      <button
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        Add Product
+      </button>
+      <ProductModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        products={products}
+        setProducts={setProducts}
+      />
     </div>
   );
 };
