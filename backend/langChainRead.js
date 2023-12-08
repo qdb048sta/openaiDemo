@@ -1,4 +1,5 @@
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
+import { GithubRepoLoader } from "langchain/document_loaders/web/github";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -29,6 +30,12 @@ const loader = new DirectoryLoader(REPO_PATH, {
   ".html": (path) => new TextLoader(path),
   ".css": (path) => new TextLoader(path),
 });
+/*const loader = new GithubRepoLoader("https://github.com/innovap3/js-exam", {
+  branch: "main",
+  recursive: false,
+  unknown: "warn",
+  maxConcurrency: 5, // Defaults to 2
+});*/
 const docs = await loader.load();
 const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage("js", {
   chunkSize: 2000,
