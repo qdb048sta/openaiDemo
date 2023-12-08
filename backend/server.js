@@ -3,7 +3,10 @@ import bodyParser from "body-parser";
 const app = express();
 const port = 8443;
 import { openaiResponse } from "../backend/openaitest.js";
-import { langChainResponse } from "../backend/langChainRead.js";
+import {
+  getAllConversation,
+  langChainResponse,
+} from "../backend/langChainRead.js";
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -13,6 +16,7 @@ app.use((req, res, next) => {
 
 app.post("/openai", bodyParser.json(), openaiResponse);
 app.post("/langChain", bodyParser.json(), langChainResponse);
+app.get("/langChain", getAllConversation);
 
 app.post("/test", (req, res) => {
   console.log("connection is correct");

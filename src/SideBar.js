@@ -20,7 +20,7 @@ const Sidebar = styled.div`
 const SidebarTitle = styled.h2`
   font-size: 120%;
   font-weight: 700;
-  letter-spacing: .2rem;
+  letter-spacing: 0.2rem;
   padding: 1.5rem 1rem 1.5rem;
   text-transform: uppercase;
   user-select: none;
@@ -36,32 +36,32 @@ const SidebarItem = styled.div`
   overflow: hidden;
   user-select: none;
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     background-color: rgb(204, 204, 204, 50%);
     color: Black;
   }
 `;
 
-const list = [
-  { title: 'SyntaxError with JSON parsing'},
-  { title: 'Range Error'},
-  { title: 'Type Error'},
-];
-
-const Layout = () => {
-  const [activeItem, setActiveItem] = useState(null);
+const Layout = ({ data, activeItem, setActiveItem }) => {
   return (
     <Sidebar>
       <SidebarTitle>History</SidebarTitle>
-      {list.map((item, index) =>
-        <SidebarItem
-          key={index}
-          className={activeItem === index ? "active" : ""}
-          onClick={() => setActiveItem(index)}
-        >
-          {item.title}
-        </SidebarItem>  
-      )}
+      {data?.map((item, index) => {
+        {
+          const { key } = item;
+          const errorMessage = key && JSON.parse(key).message;
+          return (
+            <SidebarItem
+              key={index}
+              className={activeItem === index ? "active" : ""}
+              onClick={() => setActiveItem(index)}
+            >
+              {errorMessage}
+            </SidebarItem>
+          );
+        }
+      })}
     </Sidebar>
   );
 };

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import styled from "styled-components";
 import ReactDOM from "react-dom";
 // import { Provider } from "react-redux";
 // import { reducer as formReducer } from "redux-form";
 // import { createStore, combineReducers } from "redux";
-import SideBar from './SideBar';
-import Content from './Content';
-import './reset.css';
+import SideBar from "./SideBar";
+import Content from "./Content";
+import "./reset.css";
 
 // const rootReducer = combineReducers({
 //   // Add other reducers here
@@ -23,10 +24,29 @@ const Container = styled.div`
 `;
 
 const App = () => {
+  const [data, setData] = useState(null);
+  const [activeItem, setActiveItem] = useState(0);
+  const errorData = data && data[activeItem || 0];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8443/langChain");
+        setData(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <Container>
-      <SideBar />
-      <Content />
+      <SideBar
+        data={data}
+        activeItem={activeItem}
+        setActiveItem={setActiveItem}
+      />
+      <Content errorData={errorData} />
     </Container>
   );
 };

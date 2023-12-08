@@ -7,22 +7,21 @@ import dotenv from "dotenv";
 dotenv.config();
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BufferMemory } from "langchain/memory";
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-  AIMessagePromptTemplate,
-  HumanMessagePromptTemplate,
-} from "langchain/prompts";
-import { RunnableSequence } from "langchain/schema/runnable";
-import { formatDocumentsAsString } from "langchain/util/document";
-import { StringOutputParser } from "langchain/schema/output_parser";
 
-const REPO_PATH = "/Users/johnny.wu/test-error-app/src";
+import { StringOutputParser } from "langchain/schema/output_parser";
+import { getConversation } from "./langChainUtils.js";
+import NodeCache from "node-cache";
+
+const cache = new NodeCache();
+const projectName = "example-error-app";
+const REPO_PATH = `../${projectName}/src`;
 
 //loading code
 const loader = new DirectoryLoader(REPO_PATH, {
   ".js": (path) => new TextLoader(path),
+  ".jsx": (path) => new TextLoader(path),
   ".ts": (path) => new TextLoader(path),
+  ".tsx": (path) => new TextLoader(path),
   ".json": (path) => new TextLoader(path),
   ".snap": (path) => new TextLoader(path),
   ".scss": (path) => new TextLoader(path),
@@ -56,72 +55,46 @@ const memory = new BufferMemory({
   memoryKey: "chat_history", // This must match up with our prompt template input variable.
 });
 
-const questionGeneratorTemplate = ChatPromptTemplate.fromMessages([
-  AIMessagePromptTemplate.fromTemplate(
-    "Given the following conversation about a codebase and a follow up question, rephrase the follow up question to be a standalone question and give some suggestision."
-  ),
-  new MessagesPlaceholder("chat_history"),
-  AIMessagePromptTemplate.fromTemplate(`Follow Up Input: {question}
-Standalone question:`),
-]);
-const combineDocumentsPrompt = ChatPromptTemplate.fromMessages([
-  AIMessagePromptTemplate.fromTemplate(
-    "Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\n{context}\n\n"
-  ),
-  new MessagesPlaceholder("chat_history"),
-  HumanMessagePromptTemplate.fromTemplate("Question: {question}"),
-]);
-
-const combineDocumentsChain = RunnableSequence.from([
-  {
-    question: (output) => output,
-    chat_history: async () => {
-      const { chat_history } = await memory.loadMemoryVariables({});
-      return chat_history;
-    },
-    context: async (output) => {
-      const relevantDocs = await retriever.getRelevantDocuments(output);
-      return formatDocumentsAsString(relevantDocs);
-    },
-  },
-  combineDocumentsPrompt,
-  model,
-  new StringOutputParser(),
-]);
-
-const conversationalQaChain = RunnableSequence.from([
-  {
-    question: (i) => i.question,
-    chat_history: async () => {
-      const { chat_history } = await memory.loadMemoryVariables({});
-      return chat_history;
-    },
-  },
-  questionGeneratorTemplate,
-  model,
-  new StringOutputParser(),
-  combineDocumentsChain,
-]);
-
 export const langChainResponse = async (req, res) => {
   try {
-    const { errorComponent, errorCode } = req.body;
-    const question = `I have the following erroe message : ${errorCode}can you help to analyze the problem `;
-    const result = await conversationalQaChain.invoke({
-      question,
-    });
-    await memory.saveContext(
-      {
-        input: question,
-      },
-      {
-        output: result,
-      }
-    );
+    const { error } = req.body;
 
+    const cacheValue = cache.get(error);
+    if (cacheValue) {
+      res.status(200).json({ result: cacheValue.result });
+      return;
+    }
+
+    cache.set(error, { result: "pending" });
+
+    const { message: errorMessage, stack: errorStack } = JSON.parse(error);
+
+    const conversationChain = getConversation({
+      model,
+      errorStack,
+      retriever,
+      memory,
+      projectName,
+    });
+    const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem `;
+    const result = await conversationChain.invoke({ question });
+
+    await memory.saveContext({ input: question }, { output: result });
+    cache.set(error, { result, memory });
     console.log(result);
-    res.status(200).json({ message: result });
-    //res.status(200).json({ successful: "test" });
+    res.status(200).json({ result });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+export const getAllConversation = async (req, res) => {
+  try {
+    const result = cache.keys().map((key) => {
+      const value = cache.get(key);
+      return { key, value };
+    });
+    res.status(200).json(result);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
