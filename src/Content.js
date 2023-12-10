@@ -5,7 +5,7 @@ import CodeBlock from "./CodeBlock";
 
 const Container = styled.div`
   display: flex;
-  width: 800px;
+  width: 100%;
   padding-left: 20%;
   margin: auto;
   flex-direction: column;
