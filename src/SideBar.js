@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import dayjs from "dayjs";
+import { groupBy } from "lodash";
+import React from "react";
 import styled from "styled-components";
 
 const Sidebar = styled.div`
@@ -15,14 +17,21 @@ const SidebarItem = styled.div`
   padding: 1rem;
   margin: 0.5rem 1rem;
   text-decoration: none;
-  cursor: pointer;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
   user-select: none;
   color: #8392a5;
   border-radius: 0.5rem;
+`;
 
+const SidebarDayText = styled(SidebarItem)`
+  font-size: small;
+  color: #637285;
+`;
+
+const SidebarButton = styled(SidebarItem)`
+  cursor: pointer;
   &:hover,
   &.active {
     background-color: #2c3e50;
@@ -31,23 +40,29 @@ const SidebarItem = styled.div`
 `;
 
 const Layout = ({ data, activeItem, setActiveItem }) => {
+  const timeGroup = Object.entries(
+    groupBy(data, (v) => dayjs(v.value.timestamp).format("YYYY-MM-DD"))
+  );
   return (
     <Sidebar>
-      {data?.map((item, index) => {
-        {
-          const { key } = item;
-          const errorMessage = key && JSON.parse(key).message;
-          return (
-            <SidebarItem
-              key={index}
-              className={activeItem === index ? "active" : ""}
-              onClick={() => setActiveItem(index)}
-            >
-              {errorMessage}
-            </SidebarItem>
-          );
-        }
-      })}
+      {timeGroup?.map(([day, items]) => (
+        <div>
+          <SidebarDayText fontSize="small">{day}</SidebarDayText>
+          {items.map((item, index) => {
+            const { key } = item;
+            const errorMessage = key && JSON.parse(key).message;
+            return (
+              <SidebarButton
+                key={index}
+                className={activeItem === index ? "active" : ""}
+                onClick={() => setActiveItem(index)}
+              >
+                {errorMessage}
+              </SidebarButton>
+            );
+          })}
+        </div>
+      ))}
     </Sidebar>
   );
 };

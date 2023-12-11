@@ -68,11 +68,12 @@ export const langChainResponse = async (req, res) => {
 
     const cacheValue = cache.get(error);
     if (cacheValue) {
+      cache.set(error, { ...cacheValue, timestamp: new Date().getTime() });
       res.status(200).json({ result: cacheValue.result });
       return;
     }
 
-    cache.set(error, { result: "pending" });
+    cache.set(error, { result: "pending", timestamp: new Date().getTime() });
 
     const { message: errorMessage, stack: errorStack } = JSON.parse(error);
 
@@ -87,7 +88,7 @@ export const langChainResponse = async (req, res) => {
     const result = await conversationChain.invoke({ question });
 
     await memory.saveContext({ input: question }, { output: result });
-    cache.set(error, { result, memory });
+    cache.set(error, { result, memory, timestamp: new Date().getTime() });
     console.log(result);
     res.status(200).json({ result });
   } catch (e) {
@@ -97,10 +98,13 @@ export const langChainResponse = async (req, res) => {
 
 export const getAllConversation = async (req, res) => {
   try {
-    const result = cache.keys().map((key) => {
-      const value = cache.get(key);
-      return { key, value };
-    });
+    const result = cache
+      .keys()
+      .map((key) => {
+        const value = cache.get(key);
+        return { key, value };
+      })
+      .sort((a, b) => b.value.timestamp - a.value.timestamp);
     res.status(200).json(result);
   } catch (e) {
     res.status(500).json({ message: e.message });
