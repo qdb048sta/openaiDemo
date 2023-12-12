@@ -9,16 +9,19 @@ const Container = styled.div`
   width: -moz-fill-available;
   width: -moz-available;
   width: fill-available;
-  margin: auto;
-  padding: 0 20px 0;
+  margin: auto 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.3);
 `;
 
 const MessageBox = styled.div`
   padding: 10px;
-  marginBottom: 10px;
-  borderRadius: 8px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   color: #dbdee1;
-  background-color: ${props => props.role === "user" ? "#e6f7ff" : "#2b2d31"};
+  background-color: ${(props) =>
+    props.role === "user" ? "#e6f7ff" : "#2b2d31"};
   font-size: 13px;
   border-radius: 8px;
   border: 1px solid #232428;
@@ -32,17 +35,13 @@ const Title = styled.div`
 
 const MarkdownComponent = ({ markdownContent }) => {
   const messages = [{ role: "users" }];
-  console.log(markdownContent);
   const sections = markdownContent.message.split("```");
 
   return (
     <Container>
+      <Title>Possible Solution:</Title>
       {messages.map((message, index) => (
-        <MessageBox
-          key={index}
-          role={message.role}
-        >
-          <Title>Possible Solution:</Title>
+        <MessageBox key={index} role={message.role}>
           <pre
             style={{
               whiteSpace: "pre-wrap", // or "pre-line" depending on your preference

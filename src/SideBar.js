@@ -4,29 +4,11 @@ import styled from "styled-components";
 const Sidebar = styled.div`
   width: 20%;
   height: 100%;
-  background-color: rgba(17,24,39);
+  background-color: rgba(17, 24, 39);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   position: fixed;
   padding-top: 1rem;
 `;
-
-// const SidebarTitle = styled.h2`
-//   font-size: 120%;
-//   font-weight: 700;
-//   letter-spacing: 0.2rem;
-//   color: #f5f6fa;
-//   padding: 1.5rem 1rem 1.5rem;
-//   text-transform: uppercase;
-//   user-select: none;
-// `;
-
-// const Bar = styled.hr`
-//   position: relative;
-//   left: 16px;
-//   width: calc(100% - 32px);
-//   border: none;
-//   border-top: solid 1px #2c3e50;
-// `;
 
 const SidebarItem = styled.div`
   background: transparent;
