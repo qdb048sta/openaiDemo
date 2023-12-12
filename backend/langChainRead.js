@@ -91,7 +91,7 @@ export const langChainResponse = async (req, res) => {
       memory,
       projectName,
     });
-    const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem `;
+    const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem and give us at least one code example`;
     const result = await conversationChain.invoke({ question });
 
     await memory.saveContext({ input: question }, { output: result });
