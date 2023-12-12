@@ -5,11 +5,13 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; // Choose your preferred style
 
 const Container = styled.div`
-  width: -webkit-fill-available;
-  width: -moz-fill-available;
-  width: -moz-available;
-  width: fill-available;
-  margin: auto 20px;
+  width: 100%;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+`;
+
+const Content = styled.div`
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.3);
@@ -39,35 +41,37 @@ const MarkdownComponent = ({ markdownContent }) => {
 
   return (
     <Container>
-      <Title>Possible Solution:</Title>
-      {messages.map((message, index) => (
-        <MessageBox key={index} role={message.role}>
-          <pre
-            style={{
-              whiteSpace: "pre-wrap", // or "pre-line" depending on your preference
-              wordWrap: "break-word",
-            }}
-          >
-            {sections.map((section, index) => {
-              if (index % 2 === 0) {
-                // Regular text section
-                return <ReactMarkdown>{section.trim()}</ReactMarkdown>;
-              } else {
-                // Code section
-                const filteredCode = section.split("\n").slice(1).join("\n");
-                return (
-                  <SyntaxHighlighter
-                    language={"javascript"}
-                    style={vscDarkPlus}
-                  >
-                    {filteredCode.trim()}
-                  </SyntaxHighlighter>
-                );
-              }
-            })}
-          </pre>
-        </MessageBox>
-      ))}
+      <Content>
+        <Title>Possible Solution:</Title>
+        {messages.map((message, index) => (
+          <MessageBox key={index} role={message.role}>
+            <pre
+              style={{
+                whiteSpace: "pre-wrap", // or "pre-line" depending on your preference
+                wordWrap: "break-word",
+              }}
+            >
+              {sections.map((section, index) => {
+                if (index % 2 === 0) {
+                  // Regular text section
+                  return <ReactMarkdown>{section.trim()}</ReactMarkdown>;
+                } else {
+                  // Code section
+                  const filteredCode = section.split("\n").slice(1).join("\n");
+                  return (
+                    <SyntaxHighlighter
+                      language={"javascript"}
+                      style={vscDarkPlus}
+                    >
+                      {filteredCode.trim()}
+                    </SyntaxHighlighter>
+                  );
+                }
+              })}
+            </pre>
+          </MessageBox>
+        ))}
+      </Content>
     </Container>
   );
 };

@@ -5,10 +5,11 @@ import CodeBlock from "./CodeBlock";
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   width: 100%;
+  box-sizing: border-box;
   padding-left: 20%;
   margin: auto;
-  flex-direction: column;
 `;
 
 const Content = ({ errorData }) => {

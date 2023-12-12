@@ -4,9 +4,10 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Container = styled.div`
-  width: fill-available;
+  width: 100%;
   margin: auto;
   padding: 20px;
+  box-sizing: border-box;
 `;
 
 const HighlightContainer = styled.div`
