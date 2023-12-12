@@ -21,6 +21,8 @@ const Container = styled.div`
   display: flex;
   max-width: 100%;
   margin: auto;
+  font-family: Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono",
+    "Courier New", monospace;
 `;
 
 const App = () => {

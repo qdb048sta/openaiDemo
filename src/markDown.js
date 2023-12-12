@@ -1,40 +1,51 @@
 import React from "react";
+import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; // Choose your preferred style
 
+const Container = styled.div`
+  width: -webkit-fill-available;
+  width: -moz-fill-available;
+  width: -moz-available;
+  width: fill-available;
+  margin: auto 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.3);
+`;
+
+const MessageBox = styled.div`
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  color: #dbdee1;
+  background-color: ${(props) =>
+    props.role === "user" ? "#e6f7ff" : "#2b2d31"};
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #232428;
+`;
+
+const Title = styled.div`
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 1rem;
+`;
+
 const MarkdownComponent = ({ markdownContent }) => {
   const messages = [{ role: "users" }];
-  console.log(markdownContent);
   const sections = markdownContent.message.split("```");
 
   return (
-    <div
-      style={{
-        maxWidth: "800px",
-        margin: "auto",
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-      }}
-    >
+    <Container>
+      <Title>Possible Solution:</Title>
       {messages.map((message, index) => (
-        <div
-          key={index}
-          style={{
-            backgroundColor: message.role === "user" ? "#e6f7ff" : "#f0f0f0",
-            padding: "10px",
-            marginBottom: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <h2>Possible Solution:</h2>
+        <MessageBox key={index} role={message.role}>
           <pre
             style={{
               whiteSpace: "pre-wrap", // or "pre-line" depending on your preference
               wordWrap: "break-word",
-              overflow: "auto",
             }}
           >
             {sections.map((section, index) => {
@@ -55,9 +66,9 @@ const MarkdownComponent = ({ markdownContent }) => {
               }
             })}
           </pre>
-        </div>
+        </MessageBox>
       ))}
-    </div>
+    </Container>
   );
 };
 
