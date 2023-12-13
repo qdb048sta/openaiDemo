@@ -23,11 +23,19 @@ const Title = styled.div`
   margin-bottom: 1rem;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 const CodeBlock = ({ errorExplanation }) => {
   return (
     <Container>
       <HighlightContainer>
-        <Title>Problematic Code</Title>
+        <Header>
+          <Title>Problematic Code</Title>
+          <span>{errorExplanation.timestamp}</span>
+        </Header>
         <pre>
           <SyntaxHighlighter language={"javascript"} style={vscDarkPlus}>
             {errorExplanation.errorComponent}
