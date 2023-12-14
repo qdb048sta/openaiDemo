@@ -1,8 +1,14 @@
-import React from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; // Choose your preferred style
+
+interface MarkdownComponentProps {
+  markdownContent: {
+    message: string;
+  };
+}
 
 const Container = styled.div`
   width: 100%;
@@ -35,7 +41,7 @@ const Title = styled.div`
   margin-bottom: 1rem;
 `;
 
-const MarkdownComponent = ({ markdownContent }) => {
+const MarkdownComponent: FC<MarkdownComponentProps> = ({ markdownContent }) => {
   const messages = [{ role: "users" }];
   const sections = markdownContent.message.split("```");
 

@@ -1,7 +1,14 @@
-import React from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+interface CodeBlockProps {
+  errorExplanation: {
+    errorComponent: string;
+    timestamp: string;
+  };
+}
 
 const Container = styled.div`
   width: 100%;
@@ -28,7 +35,7 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const CodeBlock = ({ errorExplanation }) => {
+const CodeBlock: FC<CodeBlockProps> = ({ errorExplanation }) => {
   return (
     <Container>
       <HighlightContainer>

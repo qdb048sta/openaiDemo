@@ -32,7 +32,7 @@ export const getConversation = ({
   retriever,
   memory,
   projectName,
-}) => {
+}: any) => {
   const combineDocumentsChain = RunnableSequence.from([
     {
       question: (output) => output,
@@ -44,7 +44,7 @@ export const getConversation = ({
       context: async (output) => {
         const textForRag = `${output.rephrasedQuestion}\nError Stack: ${errorStack}`;
         const relevantDocs = await retriever.getRelevantDocuments(textForRag);
-        const formattedDocs = relevantDocs.map((doc) => {
+        const formattedDocs = relevantDocs.map((doc: any) => {
           const path = doc.metadata.source.split(projectName)[1];
           const newPageContent = `// ${path}\n\n${doc.pageContent}\n`;
           return { ...doc, pageContent: newPageContent };
