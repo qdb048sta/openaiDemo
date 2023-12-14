@@ -3,12 +3,12 @@ import { GithubRepoLoader } from "langchain/document_loaders/web/github";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { FaissStore } from "langchain/vectorstores/faiss";
 import dotenv from "dotenv";
 dotenv.config();
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BufferMemory } from "langchain/memory";
-
+import * as fs from "fs";
 import { StringOutputParser } from "langchain/schema/output_parser";
 import { getConversation } from "./langChainUtils.js";
 import NodeCache from "node-cache";
@@ -30,6 +30,7 @@ const loader = new DirectoryLoader(REPO_PATH, {
   ".html": (path) => new TextLoader(path),
   ".css": (path) => new TextLoader(path),
 });
+
 /*const loader = new GithubRepoLoader("https://github.com/innovap3/js-exam", {
   branch: "main",
   recursive: false,
@@ -45,14 +46,21 @@ const texts = await javascriptSplitter.splitDocuments(docs);
 
 console.log("Loaded ", texts.length, " documents.");
 
-const vectorStore = await MemoryVectorStore.fromDocuments(
-  texts,
-  new OpenAIEmbeddings(),
-  {
+const directory = "../backend/vectorStore/";
+const faissFile = directory + "faiss.index";
+let vectorStore;
+try {
+  fs.accessSync(faissFile, fs.constants.F_OK);
+  vectorStore = await FaissStore.load(directory, new OpenAIEmbeddings());
+  console.log("loaded from file");
+} catch {
+  vectorStore = await FaissStore.fromDocuments(texts, new OpenAIEmbeddings(), {
     tableName: "documents",
     queryName: "match_documents",
-  }
-);
+  });
+  await vectorStore.save(directory);
+}
+
 const retriever = vectorStore.asRetriever();
 const model = new ChatOpenAI({ modelName: "gpt-3.5-turbo" }).pipe(
   new StringOutputParser()
@@ -84,7 +92,7 @@ export const langChainResponse = async (req, res) => {
       memory,
       projectName,
     });
-    const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem `;
+    const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem and give us at least one code example`;
     const result = await conversationChain.invoke({ question });
 
     await memory.saveContext({ input: question }, { output: result });
