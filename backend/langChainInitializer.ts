@@ -1,8 +1,9 @@
+import * as fs from "fs";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { FaissStore } from "langchain/vectorstores/faiss";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BufferMemory } from "langchain/memory";
 import { StringOutputParser } from "langchain/schema/output_parser";
@@ -43,11 +44,20 @@ class LangChainInitializer {
     const texts = await javascriptSplitter.splitDocuments(this.docs);
 
     console.log("Loaded ", texts.length, " documents.");
-
-    const vectorStore = await MemoryVectorStore.fromDocuments(
-      texts,
-      new OpenAIEmbeddings()
-    );
+    const directory = "../backend/vectorStore/";
+    const faissFile = directory + "faiss.index";
+    let vectorStore;
+    try {
+      fs.accessSync(faissFile, fs.constants.F_OK);
+      vectorStore = await FaissStore.load(directory, new OpenAIEmbeddings());
+      console.log("loaded from file");
+    } catch {
+      vectorStore = await FaissStore.fromDocuments(
+        texts,
+        new OpenAIEmbeddings()
+      );
+      await vectorStore.save(directory);
+    }
     this.retriever = vectorStore.asRetriever();
     this.model = new ChatOpenAI({ modelName: "gpt-3.5-turbo" }).pipe(
       new StringOutputParser()
