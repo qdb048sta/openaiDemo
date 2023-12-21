@@ -1,7 +1,18 @@
+import React, { FC } from "react";
+import styled from "styled-components";
 import dayjs from "dayjs";
 import { groupBy } from "lodash";
-import React from "react";
-import styled from "styled-components";
+
+interface LayoutProps {
+  data: {
+    key: string;
+    value: {
+      timestamp: string;
+    };
+  }[] | null;
+  activeItem: number;
+  setActiveItem: React.Dispatch<React.SetStateAction<number>>;
+}
 
 const Sidebar = styled.div`
   width: 20%;
@@ -39,7 +50,7 @@ const SidebarButton = styled(SidebarItem)`
   }
 `;
 
-const Layout = ({ data, activeItem, setActiveItem }) => {
+const Layout: React.FC<LayoutProps> = ({ data, activeItem, setActiveItem }) => {
   const timeGroup = Object.entries(
     groupBy(data, (v) => dayjs(v.value.timestamp).format("YYYY-MM-DD"))
   );
@@ -47,7 +58,7 @@ const Layout = ({ data, activeItem, setActiveItem }) => {
     <Sidebar>
       {timeGroup?.map(([day, items]) => (
         <div>
-          <SidebarDayText fontSize="small">{day}</SidebarDayText>
+          <SidebarDayText>{day}</SidebarDayText>
           {items.map((item, index) => {
             const { key } = item;
             const errorMessage = key && JSON.parse(key).message;

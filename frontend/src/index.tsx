@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import ReactDOM from "react-dom";
@@ -8,6 +8,14 @@ import ReactDOM from "react-dom";
 import SideBar from "./SideBar";
 import Content from "./Content";
 import "./reset.css";
+
+interface ErrorData {
+  key: string;
+    value: {
+      result: string;
+      timestamp: string;
+    };
+}
 
 // const rootReducer = combineReducers({
 //   // Add other reducers here
@@ -25,14 +33,14 @@ const Container = styled.div`
     "Courier New", monospace;
 `;
 
-const App = () => {
-  const [data, setData] = useState(null);
-  const [activeItem, setActiveItem] = useState(0);
+const App: FC = () => {
+  const [data, setData] = useState<ErrorData[] | null>(null);
+  const [activeItem, setActiveItem] = useState<number>(0);
   const errorData = data && data[activeItem || 0];
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8443/langChain");
+        const response = await axios.get<ErrorData[]>("http://localhost:8443/langChain");
         setData(response.data);
       } catch (error) {
         console.log(error);

@@ -1,8 +1,18 @@
-import React from "react";
+import React, { FC} from "react";
 import styled from "styled-components";
-import MarkdownComponent from "./markDown.js";
+import dayjs from "dayjs";
+import MarkdownComponent from "./markDown";
 import CodeBlock from "./CodeBlock";
-import * as dayjs from "dayjs";
+
+interface ContentProps {
+  errorData: {
+    key: string;
+    value: {
+      result: string;
+      timestamp: string;
+    };
+  } | null;
+}
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +23,7 @@ const Container = styled.div`
   margin: auto;
 `;
 
-const Content = ({ errorData }) => {
+const Content: FC<ContentProps> = ({ errorData }) => {
   const errorStack = errorData?.key && JSON.parse(errorData.key).stack;
   const message = errorData?.value?.result;
   const timestamp = dayjs(errorData?.value?.timestamp).format(
@@ -22,9 +32,7 @@ const Content = ({ errorData }) => {
   return (
     <Container>
       {errorStack && (
-        <CodeBlock
-          errorExplanation={{ errorComponent: errorStack, timestamp }}
-        />
+        <CodeBlock errorExplanation={{ errorComponent: errorStack, timestamp }} />
       )}
       {message && <MarkdownComponent markdownContent={{ message }} />}
     </Container>
