@@ -7,6 +7,10 @@ import {
 import { RunnableSequence } from "langchain/schema/runnable";
 import { formatDocumentsAsString } from "langchain/util/document";
 import { StringOutputParser } from "langchain/schema/output_parser";
+import { BaseLanguageModelInput } from "langchain/dist/base_language";
+import { VectorStoreRetriever } from "langchain/dist/vectorstores/base";
+import { FaissStore } from "langchain/vectorstores/faiss";
+import { BufferMemory } from "langchain/memory";
 
 const questionGeneratorTemplate = ChatPromptTemplate.fromMessages([
   AIMessagePromptTemplate.fromTemplate(
@@ -32,7 +36,14 @@ export const getConversation = ({
   retriever,
   memory,
   projectName,
-}: any) => {
+}: {
+  model: RunnableSequence<BaseLanguageModelInput, string>,
+  retriever: VectorStoreRetriever<FaissStore> | null,
+  projectName: string,
+  memory: BufferMemory,
+  errorStack: string
+
+}) => {
   const combineDocumentsChain = RunnableSequence.from([
     {
       question: (output) => output,
@@ -43,8 +54,8 @@ export const getConversation = ({
       },
       context: async (output) => {
         const textForRag = `${output.rephrasedQuestion}\nError Stack: ${errorStack}`;
-        const relevantDocs = await retriever.getRelevantDocuments(textForRag);
-        const formattedDocs = relevantDocs.map((doc: any) => {
+        const relevantDocs = await retriever?.getRelevantDocuments(textForRag) || [];
+        const formattedDocs = relevantDocs.map((doc) => {
           const path = doc.metadata.source.split(projectName)[1];
           const newPageContent = `// ${path}\n\n${doc.pageContent}\n`;
           return { ...doc, pageContent: newPageContent };

@@ -8,14 +8,26 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { BufferMemory } from "langchain/memory";
 import { StringOutputParser } from "langchain/schema/output_parser";
 import { REPO_PATH } from "./config";
+import { RunnableSequence } from "langchain/schema/runnable";
+import { BaseLanguageModelInput } from "langchain/dist/base_language";
+import { VectorStoreRetriever } from "langchain/dist/vectorstores/base";
 
 class LangChainInitializer {
-  private docs: any = null;
-  private model: any = null;
-  private memory: any = null;
-  private retriever: any = null;
+  private model: RunnableSequence<BaseLanguageModelInput, string>;
+  private memory: BufferMemory;
+  private retriever: VectorStoreRetriever<FaissStore> | null = null;
 
   private initialized: boolean = false;
+
+  constructor() {
+    this.memory = new BufferMemory({
+      returnMessages: true, // Return stored messages as instances of `BaseMessage`
+      memoryKey: "chat_history", // This must match up with our prompt template input variable.
+    });
+    this.model = new ChatOpenAI({ modelName: "gpt-3.5-turbo" }).pipe(
+      new StringOutputParser()
+    );
+  }
 
   async init() {
     if (this.initialized) {
@@ -33,7 +45,7 @@ class LangChainInitializer {
       ".html": (path) => new TextLoader(path),
       ".css": (path) => new TextLoader(path),
     });
-    this.docs = await loader.load();
+    const docs = await loader.load();
     const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage(
       "js",
       {
@@ -41,10 +53,10 @@ class LangChainInitializer {
         chunkOverlap: 200,
       }
     );
-    const texts = await javascriptSplitter.splitDocuments(this.docs);
+    const texts = await javascriptSplitter.splitDocuments(docs);
 
     console.log("Loaded ", texts.length, " documents.");
-    const directory = "../backend/vectorStore/";
+    const directory = "./vectorStore/";
     const faissFile = directory + "faiss.index";
     let vectorStore;
     try {
@@ -59,16 +71,6 @@ class LangChainInitializer {
       await vectorStore.save(directory);
     }
     this.retriever = vectorStore.asRetriever();
-    this.model = new ChatOpenAI({ modelName: "gpt-3.5-turbo" }).pipe(
-      new StringOutputParser()
-    );
-    this.memory = new BufferMemory({
-      returnMessages: true, // Return stored messages as instances of `BaseMessage`
-      memoryKey: "chat_history", // This must match up with our prompt template input variable.
-    });
-  }
-  getDocs() {
-    return this.docs;
   }
 
   getModel() {

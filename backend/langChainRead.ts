@@ -25,7 +25,6 @@ const cache = new NodeCache();
 });*/
 
 export const langChainResponse = async (req: Request, res: Response) => {
-  const docs = langChainInitializer.getDocs();
   const model = langChainInitializer.getModel();
   const memory = langChainInitializer.getMemory();
   const retriever = langChainInitializer.getRetriever();
@@ -53,7 +52,7 @@ export const langChainResponse = async (req: Request, res: Response) => {
     const question = `I have the following error message: \"${errorMessage}\"\nCan you help to analyze the problem and give us at least one code example`;
     const result = await conversationChain.invoke({ question });
 
-    await memory.saveContext({ input: question }, { output: result });
+    await memory?.saveContext({ input: question }, { output: result });
     cache.set(error, { result, memory, timestamp: new Date().getTime() });
     console.log(result);
     res.status(200).json({ result });
