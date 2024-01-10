@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tanstack/react-query": "^5.17.0",
     "@types/lodash": "^4.14.202",
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",

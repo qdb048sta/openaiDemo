@@ -1,17 +1,12 @@
-import React, { FC} from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 import dayjs from "dayjs";
-import MarkdownComponent from "./markDown";
-import CodeBlock from "./CodeBlock";
+import MarkdownComponent, { wrapCodeBlock } from "./markDown";
+import ChatInput from "./ChatInput";
+import { ErrorData } from "./api";
 
 interface ContentProps {
-  errorData: {
-    key: string;
-    value: {
-      result: string;
-      timestamp: string;
-    };
-  } | null;
+  errorData: ErrorData | undefined;
 }
 
 const Container = styled.div`
@@ -25,16 +20,40 @@ const Container = styled.div`
 
 const Content: FC<ContentProps> = ({ errorData }) => {
   const errorStack = errorData?.key && JSON.parse(errorData.key).stack;
-  const message = errorData?.value?.result;
-  const timestamp = dayjs(errorData?.value?.timestamp).format(
-    "YYYY-MM-DD hh:mm:ss"
-  );
+  const timestamp = dayjs(errorData?.timestamp).format("YYYY-MM-DD hh:mm:ss");
   return (
     <Container>
       {errorStack && (
-        <CodeBlock errorExplanation={{ errorComponent: errorStack, timestamp }} />
+        <MarkdownComponent
+          key={errorStack}
+          title="Error Stack"
+          markdownContent={{ message: wrapCodeBlock(errorStack) }}
+          timestamp={timestamp}
+        />
       )}
-      {message && <MarkdownComponent markdownContent={{ message }} />}
+      {errorData?.memory?.map(({ from, content }, index) => {
+        if (from === "ai") {
+          return (
+            <MarkdownComponent
+              key={content}
+              title="AI Response"
+              markdownContent={{ message: content }}
+            />
+          );
+        } else if (from === "user") {
+          return (
+            <MarkdownComponent
+              key={content}
+              title="User"
+              markdownContent={{ message: content }}
+            />
+          );
+        }
+      })}
+      {errorData?.status === "pending" && (
+        <MarkdownComponent title="" markdownContent={{ message: "loading" }} />
+      )}
+      {errorStack && <ChatInput errorData={errorData} />}
     </Container>
   );
 };
