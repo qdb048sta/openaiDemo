@@ -46,6 +46,7 @@ const invokeLlm = async (error: string, input: string) => {
       retriever,
       memory,
       projectName,
+      inputType,
     });
     const result = await conversationChain.invoke({ question: input });
     await memory?.saveContext({ input }, { output: result });

@@ -29,6 +29,15 @@ const combineDocumentsPrompt = ChatPromptTemplate.fromMessages([
     "\n\nError stack: {error}\n\nQuestion: {question}"
   ),
 ]);
+const followingDocumentsPrompt = ChatPromptTemplate.fromMessages([
+  AIMessagePromptTemplate.fromTemplate(
+    "This is the followup question based on your previous response If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\n{context}\n\n"
+  ),
+  new MessagesPlaceholder("chat_history"),
+  HumanMessagePromptTemplate.fromTemplate(
+    "Question: {question} original question:"
+  ),
+]);
 
 export const getConversation = ({
   model,
@@ -36,13 +45,23 @@ export const getConversation = ({
   retriever,
   memory,
   projectName,
+  inputType = "standalone",
 }: {
   model: RunnableSequence<BaseLanguageModelInput, string>;
   retriever: VectorStoreRetriever<FaissStore> | null;
   projectName: string;
   memory: BufferMemory;
   errorStack: string;
+  model: RunnableSequence<BaseLanguageModelInput, string>;
+  retriever: VectorStoreRetriever<FaissStore> | null;
+  projectName: string;
+  memory: BufferMemory;
+  errorStack: string;
 }) => {
+  const testPrompt =
+    inputType == "standalone"
+      ? combineDocumentsPrompt
+      : followingDocumentsPrompt;
   const combineDocumentsChain = RunnableSequence.from([
     {
       question: (output) => output,
@@ -63,7 +82,7 @@ export const getConversation = ({
         return formatDocumentsAsString(formattedDocs);
       },
     },
-    combineDocumentsPrompt,
+    testPrompt,
     model,
     new StringOutputParser(),
   ]);
