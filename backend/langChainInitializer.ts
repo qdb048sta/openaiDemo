@@ -29,21 +29,17 @@ class LangChainInitializer {
       return;
     }
     //loading code
-    const loader = new DirectoryLoader(
-      REPO_PATH,
-      {
-        ".js": (path) => new TextLoader(path),
-        ".jsx": (path) => new TextLoader(path),
-        ".ts": (path) => new TextLoader(path),
-        ".tsx": (path) => new TextLoader(path),
-        ".json": (path) => new TextLoader(path),
-        ".snap": (path) => new TextLoader(path),
-        ".scss": (path) => new TextLoader(path),
-        ".html": (path) => new TextLoader(path),
-        ".css": (path) => new TextLoader(path),
-      },
-      true
-    );
+    const loader = new DirectoryLoader(REPO_PATH, {
+      ".js": (path) => new TextLoader(path),
+      ".jsx": (path) => new TextLoader(path),
+      ".ts": (path) => new TextLoader(path),
+      ".tsx": (path) => new TextLoader(path),
+      ".json": (path) => new TextLoader(path),
+      ".snap": (path) => new TextLoader(path),
+      ".scss": (path) => new TextLoader(path),
+      ".html": (path) => new TextLoader(path),
+      ".css": (path) => new TextLoader(path),
+    });
     const docs = await loader.load();
     const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage(
       "js",
