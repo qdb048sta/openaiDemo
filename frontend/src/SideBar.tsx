@@ -2,14 +2,10 @@ import React, { FC } from "react";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { groupBy } from "lodash";
+import { ErrorData } from "./api";
 
 interface LayoutProps {
-  data: {
-    key: string;
-    value: {
-      timestamp: string;
-    };
-  }[] | null;
+  data: ErrorData[] | undefined;
   activeItem: number;
   setActiveItem: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -52,7 +48,7 @@ const SidebarButton = styled(SidebarItem)`
 
 const Layout: React.FC<LayoutProps> = ({ data, activeItem, setActiveItem }) => {
   const timeGroup = Object.entries(
-    groupBy(data, (v) => dayjs(v.value.timestamp).format("YYYY-MM-DD"))
+    groupBy(data, (v) => dayjs(v.timestamp).format("YYYY-MM-DD"))
   );
   return (
     <Sidebar>
