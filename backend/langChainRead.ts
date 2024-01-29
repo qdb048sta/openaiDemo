@@ -26,7 +26,7 @@ const cache = new NodeCache();
   maxConcurrency: 5, // Defaults to 2
 });*/
 
-const invokeLlm = async (error: string, input: string) => {
+const invokeLlm = async (error: string, input: string, inputType: string) => {
   const cacheValue: CacheValueType | undefined = cache.get(error);
   const memory =
     cacheValue?.memory ||
@@ -46,6 +46,7 @@ const invokeLlm = async (error: string, input: string) => {
       retriever,
       memory,
       projectName,
+      inputType,
     });
     const result = await conversationChain.invoke({ question: input });
     await memory?.saveContext({ input }, { output: result });
@@ -87,7 +88,7 @@ export const langChainResponse = async (
     const cacheValue: CacheValueType | undefined = cache.get(error);
     if (!cacheValue) {
       const input = getFirstQuestion(error);
-      await invokeLlm(error, input);
+      await invokeLlm(error, input, "standalone");
       res.status(200).json({ status: "success" });
       return;
     } else if (!input) {
@@ -95,7 +96,7 @@ export const langChainResponse = async (
       res.status(200).json({ status: cacheValue.status });
       return;
     } else {
-      await invokeLlm(error, input);
+      await invokeLlm(error, input, "followup");
       res.status(200).json({ status: "success" });
       return;
     }

@@ -29,20 +29,35 @@ const combineDocumentsPrompt = ChatPromptTemplate.fromMessages([
     "\n\nError stack: {error}\n\nQuestion: {question}"
   ),
 ]);
-
+const followingDocumentsPrompt = ChatPromptTemplate.fromMessages([
+  AIMessagePromptTemplate.fromTemplate(
+    "This is the followup question based on your previous response. If you don't know the answer, just say that you don't know, don't try to make up an answer.\n\n{context}\n\n"
+  ),
+  new MessagesPlaceholder("chat_history"),
+  HumanMessagePromptTemplate.fromTemplate(
+    "Question: {question} original question:"
+  ),
+]);
+// We can have a object in future for different purpose prompt i.g {standalone: combineDocumentsPrompt , followup:followingDocumentsPrompt}
 export const getConversation = ({
   model,
   errorStack,
   retriever,
   memory,
   projectName,
+  inputType = "standalone",
 }: {
   model: RunnableSequence<BaseLanguageModelInput, string>;
   retriever: VectorStoreRetriever<FaissStore> | null;
   projectName: string;
   memory: BufferMemory;
   errorStack: string;
+  inputType: string;
 }) => {
+  const AIresponseprompt =
+    inputType == "standalone"
+      ? combineDocumentsPrompt
+      : followingDocumentsPrompt;
   const combineDocumentsChain = RunnableSequence.from([
     {
       question: (output) => output,
@@ -63,7 +78,7 @@ export const getConversation = ({
         return formatDocumentsAsString(formattedDocs);
       },
     },
-    combineDocumentsPrompt,
+    AIresponseprompt,
     model,
     new StringOutputParser(),
   ]);
